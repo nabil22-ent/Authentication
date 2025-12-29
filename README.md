@@ -5,6 +5,13 @@ using **Node.js** and **Express.js**.
 
 ---
 
+## 📋 Prerequisites
+
+- Node.js (v14 or higher)
+- npm
+
+---
+
 ## 🚀 Initialize an Empty Node.js Project
 
 ```bash
