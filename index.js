@@ -8,6 +8,10 @@ app.use(express.json());
 
 const users = [];
 
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 app.post('/signup', (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -43,21 +47,60 @@ app.post('/signin', (req, res) => {
   }
 });
 
-app.get('/me', (req, res) => {
-  const token = req.headers.authorization;
-  const userDetails = jwt.verify(token, JWT_SECRET);
+// function auth(req, res, next) {
+//   const token = req.headers.authorization;
 
-  const username = userDetails.username;
-  const user = users.find((user) => user.username === username);
-  if (user) {
-    res.send({
-      username: user.username,
+//   if (token) {
+//     jwt.verify(token, JWT_SECRET, (err, decoded) => {
+//       if (err) {
+//         res.staus(401).send({
+//           message: 'Unauthorized',
+//         });
+//       } else {
+//         res.user = decoded;
+//         next();
+//       }
+//     });
+//   } else {
+//     res.staus(401).send({
+//       message: 'Unauthorized',
+//     });
+//   }
+// }
+
+// app.get('/me', auth, (req, res) => {
+//   const user = req.user;
+//   res.send({
+//     username: user.username,
+//   });
+// });
+function auth(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (token) {
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+      if (err) {
+        res.status(401).send({
+          message: 'Unauthorized',
+        });
+      } else {
+        req.user = decoded;
+        next();
+      }
     });
   } else {
     res.status(401).send({
       message: 'Unauthorized',
     });
   }
+}
+
+app.get('/me', auth, (req, res) => {
+  const user = req.user;
+
+  res.send({
+    username: user.username,
+  });
 });
 
 app.listen(3000, () => {
